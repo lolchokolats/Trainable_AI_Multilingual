@@ -1,0 +1,93 @@
+import json
+import os
+import random
+
+FILE = "broken_rus.json"
+
+if os.path.exists(FILE):
+    with open(FILE, "r", encoding="utf-8") as f:
+        brain = json.load(f)
+else:
+    brain = {}
+
+mode = "нормл"
+messages = 0
+trainings = 0
+
+def save():
+    with open(FILE, "w", encoding="utf-8") as f:
+        json.dump(brain, f, ensure_ascii=False, indent=2)
+
+def clean(text):
+    return text.lower().strip().replace("ё","е").replace("й","и")
+
+def find_answer(phrase):
+    wrds = phrase.split()
+    cunter = {}
+    for w in wrds:
+        if w in brain:
+            for ans, wei in brain[w].items():
+                cunter[ans] = cunter.get(ans,0)+wei
+    if not cunter:
+        return None
+    bst = max(cunter.values())
+    cand = [a for a,v in cunter.items() if v==bst]
+    return random.choice(cand)
+
+def train(phrase, answer):
+    global trainings
+    for w in phrase.split():
+        if w not in brain:
+            brain[w] = {}
+        brain[w][answer] = brain[w].get(answer,0)+1
+    trainings +=1
+    save()
+
+def commands(text):
+    global mode
+    if text=="/help":
+        print("📌 командики:")
+        print("/help — пмм")
+        print("/stats — цифры")
+        print("/mode — режим")
+        print("/clear — очист мозг")
+        return True
+    if text=="/stats":
+        print(f"🧠 словешки: {len(brain)}")
+        print(f"💬 послания: {messages}")
+        print(f"📚 ученьки: {trainings}")
+        print(f"⚙️ режим: {mode}")
+        return True
+    if text=="/mode":
+        mode = "шутк" if mode=="нормл" else "нормл"
+        print(f"⚙️ смена режима → {mode}")
+        return True
+    if text=="/clear":
+        brain.clear()
+        save()
+        print("🗑️ мозг очищен бгг")
+        return True
+    return False
+
+print("🤖 поломанный ИИ запущен")
+print("напиши /help чтоб узнать командки")
+
+while True:
+    inp = input("ты: ")
+    if inp.lower() in ["выход","exit"]:
+        break
+    inp = clean(inp)
+    messages+=1
+    if inp.startswith("/"):
+        if commands(inp):
+            continue
+    ans = find_answer(inp)
+    if ans:
+        if mode=="шутк":
+            ans+=" 😹"
+        print("ИИ:",ans)
+    else:
+        print("ИИ: хз чё это. научи пж")
+        new_ans=input("отв: ")
+        train(inp,clean(new_ans))
+        print("ИИ: запомнил, съел мозги хэээхэээх🧠")
