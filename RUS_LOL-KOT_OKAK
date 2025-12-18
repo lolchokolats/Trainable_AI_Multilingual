@@ -10,7 +10,7 @@ if os.path.exists(FILE):
 else:
     brain = {}
 
-mode = "нормл"
+mode = "норmл"
 messages = 0
 trainings = 0
 
