@@ -2,7 +2,7 @@ import json
 import os
 import random
 
-FILE = "lolcat_eng.json"
+FILE = "lolcateng.json"
 
 if os.path.exists(FILE):
     with open(FILE, "r", encoding="utf-8") as f:
